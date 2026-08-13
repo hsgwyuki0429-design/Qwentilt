@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070b16">
+<title>TILT ― 傾ける。考える。解く。</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="cv"></canvas>
+
+  <!-- ゲームHUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <button id="btnMenu" class="hbtn" aria-label="menu">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+      </button>
+      <div class="hud-title">
+        <div id="stageNo">STAGE 01</div>
+        <div id="stageName">TILT</div>
+      </div>
+      <div class="hud-moves">
+        <span id="moveNum">0</span>
+        <span id="parNum">PAR 1</span>
+      </div>
+    </div>
+    <div id="hint"></div>
+    <div class="hud-bottom">
+      <div class="ctl-badge" id="ctlBadge">SWIPE</div>
+      <div class="spacer"></div>
+      <button id="btnUndo" class="cbtn" aria-label="undo">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5 3.5 9.5 8 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M4.5 9.5H15a5.5 5.5 0 1 1 0 11h-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+      </button>
+      <button id="btnAnswer" class="cbtn" aria-label="answer">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </button>
+      <button id="btnRestart" class="cbtn" aria-label="restart">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M20 3v4h-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- タイトル -->
+  <div id="title" class="screen">
+    <div class="logo"><span>T</span><span>I</span><span>L</span><span>T</span></div>
+    <div class="tagline">傾ける。考える。解く。</div>
+    <div class="tagline-en">TILT. THINK. SOLVE.</div>
+    <button id="btnPlay" class="primary big">PLAY</button>
+    <div class="title-sub">
+      <button id="btnLevels" class="ghost">LEVELS</button>
+      <button id="btnSettingsT" class="ghost">SETTINGS</button>
+    </div>
+    <div class="foot">スマホを傾ける、またはスワイプで重力操作</div>
+  </div>
+
+  <!-- ステージセレクト -->
+  <div id="select" class="screen hidden">
+    <div class="sel-head">
+      <button id="btnSelBack" class="hbtn" aria-label="back">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </button>
+      <div class="sel-title">SELECT STAGE</div>
+      <button id="btnSettingsS" class="hbtn" aria-label="settings">
+        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="grid"></div>
+  </div>
+
+  <!-- クリア -->
+  <div id="clear" class="screen hidden">
+    <div class="clear-card">
+      <div id="clearPerfect" class="hidden">PERFECT</div>
+      <div class="clear-title">CLEAR</div>
+      <div id="stars"><span>★</span><span>★</span><span>★</span></div>
+      <div class="clear-stats">
+        <div>MOVES<b id="cMoves">0</b></div>
+        <div>BEST<b id="cBest">0</b></div>
+        <div>PAR<b id="cPar">0</b></div>
+      </div>
+      <div class="clear-btns">
+        <button id="btnCMenu" class="ghost">MENU</button>
+        <button id="btnCRetry" class="ghost">RETRY</button>
+        <button id="btnCNext" class="primary">NEXT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定 -->
+  <div id="settings" class="screen hidden">
+    <div class="sheet">
+      <div class="sheet-head"><div>SETTINGS</div><button id="btnSetClose" class="hbtn">✕</button></div>
+      <div class="row"><span>SOUND FX</span><div class="switch" id="swSfx"><i></i></div></div>
+      <div class="row"><span>MUSIC</span><div class="switch" id="swBgm"><i></i></div></div>
+      <div class="row"><span>VIBRATION</span><div class="switch" id="swVib"><i></i></div></div>
+      <div class="row"><span>CONTROLS</span><button id="btnCtl" class="pill">AUTO</button></div>
+      <div class="row"><span>TILT CALIBRATION</span><button id="btnCal" class="pill">CALIBRATE</button></div>
+      <div class="howto">
+        <div>📱 / 👆 傾きかスワイプで重力を回転</div>
+        <div>🧊 ブロックは壁にぶつかるまで滑る</div>
+        <div>🎯 同色のソケットへ乗せると沈む</div>
+        <div>👉 詰まったら答えボタンで模範解答を実演</div>
+      </div>
+      <button id="btnReset" class="danger">RESET SAVE DATA</button>
+    </div>
+  </div>
+
+  <!-- センサー権限 -->
+  <div id="perm" class="screen hidden">
+    <div class="card">
+      <div class="card-title">傾き操作を使いますか？</div>
+      <div class="card-body">端末のモーションセンサーへのアクセスを許可すると、スマホを傾けて遊べます。許可しなくてもスワイプで遊べます。</div>
+      <div class="card-btns">
+        <button id="btnPermNo" class="ghost">スワイプで遊ぶ</button>
+        <button id="btnPermYes" class="primary">傾きを許可</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <div id="flash"></div>
+</div>
+
+<script src="js/levels.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
